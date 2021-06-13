@@ -1,0 +1,36 @@
+Develop an original computer program to randomly generate a five-question FBLA quiz from a database. The program must complete a minimum of the following tasks:  
+ 
+Have at least 50 questions in the database with the ability to see correct answers 
+
+Include at least 4 types of questions (i.e. multiple choice, T/F, fill-in-the-blank, matching, and dropdown, etc.). 
+
+Inform the user which questions were correctly answered 
+
+Calculate the total correct on the five-question quiz 
+
+Generate a printable report on quiz results 
+
+Data must be stored persistently. Storage may be in a relational database, a document-oriented NoSQL database, flat text files, flat JSON, or XML files. 
+
+All data entry must be validated with appropriate user notifications and error messages including the use of required fields.
+
+
+classes:
+
+quiz
+ - select 5 random questions
+ - select questions of each type
+
+db
+ - connect to db
+ - getmc()
+ - gettf()
+ - getfib()
+ - getdd(), use getmc() insteadd
+ - all above return list
+ - all above get least played question
+ - puts info into db
+
+
+database (mc, t/f, dropdown, maybe fill in blank):
+id, question, answer, wrong1, wrong2, wrong3, fib, right, total
