@@ -1,3 +1,12 @@
+# fix quiz. it repeats the same question multiple times because it selects them each individually based on ratio so it always selects the one with the worst ratio
+
+
+
+
+
+
+
+
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'home.ui'
@@ -20,6 +29,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 from database import Database
 import random
 from time import sleep
@@ -69,6 +79,8 @@ class Ui_MainWindow(object):
         
     # Will set up the reports page and display it to the user
     def setup_report(self):
+
+        
         self.reportwidget = QtWidgets.QWidget(MainWindow)
         self.reportwidget.setObjectName("reportwidget")
         self.reportText = QtWidgets.QLabel(self.reportwidget)
@@ -76,6 +88,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(16)
         self.reportText.setFont(font)
+        self.reportText.setStyleSheet("color:blue;")
         self.reportText.setAlignment(QtCore.Qt.AlignJustify|QtCore.Qt.AlignVCenter)
         self.reportText.setWordWrap(True)
         self.reportText.setObjectName("welcomeText")
@@ -85,6 +98,17 @@ class Ui_MainWindow(object):
         self.answers.setObjectName("answers")
         self.answers.setGeometry(QtCore.QRect(904, 5, 131, 20))
         self.answers.toggled.connect(self.answer)
+        
+        self.print = QtWidgets.QPushButton(self.reportwidget)
+        self.print.setGeometry(QtCore.QRect(1090, 5, 100, 30))
+        font1 = QtGui.QFont()
+        font1.setPointSize(11)
+        self.print.setFont(font1)
+        self.print.clicked.connect(self.printa)
+        
+        self.beginButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.beginButton.setObjectName("printButton")
+        self.beginButton.clicked.connect(self.quiz)
         self.table = QtWidgets.QTreeView(self.reportwidget)
         self.table.setObjectName("table")
         self.table.setRootIsDecorated(False)
@@ -93,6 +117,8 @@ class Ui_MainWindow(object):
         self.addDataNoAnswers()
         self.table.setGeometry(QtCore.QRect(5, 40, 1190, 655))
         self.table.hide()
+
+
         
     # Will set up quiz page and display it to the user
     def setup_quiz(self):
@@ -104,6 +130,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(16)
         self.quizText.setFont(font)
+        self.quizText.setStyleSheet("color:blue;")
         self.quizText.setAlignment(QtCore.Qt.AlignJustify|QtCore.Qt.AlignVCenter)
         self.quizText.setWordWrap(True)
         self.quizText.setObjectName("quizWelcomeText")
@@ -324,8 +351,28 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Report"))
         self.reportText.setText(_translate("MainWindow", "< Report"))
         self.answers.setText(_translate("MainWindow", "Show Answers"))
+        self.print.setText(_translate("MainWindow", "Print"))
         self.table.show()
         MainWindow.resize(1200, 700)
+
+        
+##        dialog = QPrintDialog()
+##        printer = dialog.printer()
+##        print(0)
+##        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+##
+##            document = QtGui.QTextDocument()
+##            print(9)
+##            cursor = QtGui.QTextCursor(document)
+##            print(0)
+##            print(self.reportwidget.columnCount())
+##            table = cursor.insertTable(self.table.rowCount(), self.table.columnCount())
+##            print(9)
+##            for row in range(table.rows()):
+##                for col in range(table.columns()):
+##                    cursor.insertText(self.table.item(row, col).text())
+##                    cursor.movePosition(QtGui.QTextCursor.NextCell)
+##            document.print_(dialog.printer())
 
     def quiz(self):
         self.pastchecked = ""
@@ -338,6 +385,28 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Home"))
         MainWindow.resize(601, 335)
+
+    def printa(self):
+        dialog = QPrintDialog()
+        printer = dialog.printer()
+        printer.setOrientation(QPrinter.Landscape)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            
+            font = QtGui.QFont()
+            font.setPointSize(10)
+
+            document = QtGui.QTextDocument()
+            cursor = QtGui.QTextCursor(document)
+            table = cursor.insertTable(self.model.rowCount()+1, self.model.columnCount())
+            document.setDefaultFont(font)
+            for col in range(table.columns()):
+                cursor.insertText(ui.model.horizontalHeaderItem(col).text())
+                cursor.movePosition(QtGui.QTextCursor.NextCell)
+            for row in range(table.rows()-1):
+                for col in range(table.columns()):
+                    cursor.insertText(self.model.item(row, col).text())
+                    cursor.movePosition(QtGui.QTextCursor.NextCell)
+            document.print_(dialog.printer())
         
 
     def answer(self):
@@ -346,6 +415,8 @@ class Ui_MainWindow(object):
             self.addData()
         else:
             self.addDataNoAnswers()
+        
+       
         
     def addData(self):
         self.model = QtGui.QStandardItemModel(0, 5, self.reportwidget)

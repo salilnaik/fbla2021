@@ -19,6 +19,12 @@ class Database:
         return temp.fetchall()
     def commit(self):
         self.db.commit()
+    def getquiz(self, length):
+        out = []
+        
+            
+
+        
     def getmc(self):
         out = self.run("select id, question, answer, wrong1, wrong2, wrong3 from questions order by ratio asc, random();")
         return out
