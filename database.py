@@ -20,9 +20,32 @@ class Database:
     def commit(self):
         self.db.commit()
     def getquiz(self, length):
-        out = []
+        questions = self.db.execute("select * from questions order by ratio asc, random();")
         
-            
+        out = []
+        outtype = []
+        for i in range(length):
+            qtype = random.randint(1,4)
+            outtype.append(qtype)
+            # mc
+            if qtype==1:
+                out.append(questions.fetchone()[:6])
+            # tf
+            if qtype==2:
+                if random.randint(0,1):
+                    out.append((questions.fetchone()[:3], True))
+                else:
+                    randfalse = random.randint(3, 5)
+                    tempq = questions.fetchone()
+                    out.append((tempq[:2] + tempq[randfalse], False))
+                    
+            # fib
+            if qtype==3:
+                out.append(questions.fetchone()[:3])
+            # dd
+            if qtype==4:
+                out.append(questions.fetchone()[:6])
+        return out, outtype        
 
         
     def getmc(self):
