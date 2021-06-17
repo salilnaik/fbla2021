@@ -12,7 +12,7 @@
 ##        self.tf = self.db.gettf()
 ##        self.fib = self.db.getfib()
 ##        self.dd = self.db.getmc()
-##        self.mc2 = self.db.getmc()
+##        self.mc2 = self.db.getmc() 
 ##q = Quiz()
 
 
