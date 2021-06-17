@@ -1,6 +1,6 @@
 # fix quiz. it repeats the same question multiple times because it selects them each individually based on ratio so it always selects the one with the worst ratio
 
-
+# add the code for the other question types and find a way to hide the choices from a multiple choice question
 
 
 
@@ -140,10 +140,34 @@ class Ui_MainWindow(object):
         
         self.check = QtWidgets.QPushButton(self.quizwidget)
         self.check.setGeometry(375, 440, 100, 35)
-        self.check.setText(_translate("MainWindow", "Check Answer"))
+        self.check.setText(_translate("MainWindow", "Start Quiz"))
 
 
-        # Display question 1 (Multiple Choice)
+        self.check.clicked.connect(self.makequiz)
+        self.mc1 = db.getmc()
+        self.text1 = QtWidgets.QLabel(self.quizwidget)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.text1.setFont(font)
+        self.text1.setWordWrap(True)
+        self.text1.setGeometry(QtCore.QRect(5, 90, 470, 100))
+        self.text1.setText(_translate("MainWindow", "How many questions do you want in the quiz?"))
+        
+        self.spin = QtWidgets.QSpinBox(self.quizwidget)
+        self.spin.setMinimum(1)
+        self.spin.setMaximum(db.getlength())
+        self.spin.setGeometry(QtCore.QRect(5, 200, 470, 40))
+        self.spin.setFont(font)
+        self.spin.setValue(5)
+
+        MainWindow.setCentralWidget(self.quizwidget)
+        MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Quiz"))
+        self.quizText.setText(_translate("MainWindow", "< Quiz"))
+        MainWindow.resize(480, 480)
+
+
+
+        '''# Display question 1 (Multiple Choice)
         # Will roll back and display question 5 (Multiple Choice)
         if len(self.results) == 0 or len(self.results)>3:
             self.check.clicked.connect(self.checkans)
@@ -224,14 +248,61 @@ class Ui_MainWindow(object):
                 self.drop.addItem(self.dd1[i])
             self.drop.setGeometry(QtCore.QRect(5,240,200,25))
 
-            self.check.clicked.connect(self.checkdd)
+            self.check.clicked.connect(self.checkdd)'''
             
-            
+    def makequiz(self):
+       print("makequiz")
+       self.quizlen = self.spin.value()
+       self.questions, self.questiontype = db.getquiz(self.quizlen)
+       self.tempquestion = self.questions.copy()
+       self.temptype = self.questiontype.copy()
+       print(self.questiontype)
+       self.finalquiz()
+       
+    def finalquiz(self):
+       MainWindow.setStyleSheet('background-color: "#fff"')
+       
         
-        MainWindow.setCentralWidget(self.quizwidget)
-        MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Quiz"))
-        self.quizText.setText(_translate("MainWindow", "< Quiz"))
-        MainWindow.resize(480, 480)
+       _translate = QtCore.QCoreApplication.translate
+       self.spin.hide()
+       print(0)
+       try:
+           # Multiple Choice
+           if self.temptype[0] == 1:
+               print(9)
+               self.check.setText(_translate("MainWindow", "Check Answer"))
+               self.check.clicked.disconnect()
+               self.check.clicked.connect(self.checkans)
+               self.mc1 = self.tempquestion[0]
+
+               print(self.mc1)
+
+               
+               self.choices = [0, 0, 0, 0]
+               self.index = random.randint(0,3)
+
+                
+                
+               for x, i in enumerate(self.mc1[2:6]):
+                   self.choices[self.index-x] = QtWidgets.QRadioButton(self.quizwidget)
+                   self.choices[self.index-x].setText(_translate("MainWindow", i))
+               for x, i in enumerate(self.choices):
+                   self.choices[x].setGeometry(QtCore.QRect(10, (200+40*x), 470, 50))
+                   self.choices[x].show()
+
+                
+               self.text1.setText(_translate("MainWindow", self.mc1[1]))
+           elif self.temptype[0] == 2:
+               print("type 2")
+           elif self.temptype[0] == 3:
+               print("type3")
+           elif self.temptype[0] == 4:
+               print("type4")
+       except IndexError:
+           pass
+                   
+
+
 
     def checkdd(self):
         _translate = QtCore.QCoreApplication.translate
@@ -306,21 +377,30 @@ class Ui_MainWindow(object):
                     self.results.append(True)
                     db.increment(self.mc1[0], True)
                     self.text1.setText(_translate("MainWindow", f'{self.text1.text()}\nCORRECT!!'))
+                    MainWindow.setStyleSheet('background-color: "#bfb";')
                 else:
                     self.results.append(False)
                     db.increment(self.mc1[0], False)
                     self.text1.setText(_translate("MainWindow", f'{self.text1.text()}\nINCORRECT!!'))
+                    MainWindow.setStyleSheet('background-color: "#fbb";')
                 break
         wrongfont = QtGui.QFont()
         wrongfont.setStrikeOut(True)
         for x, i in enumerate(self.choices):
             if x != self.index:
                 self.choices[x].setFont(wrongfont)
-        if len(self.results) < 5:
-            self.check.setText(_translate("MainWindow", "Next Question"))
-            self.check.clicked.connect(self.setup_quiz)
-        else:
-            self.check.setText(_translate("MainWindow", "View Results"))
+                self.choices[x].setStyleSheet("color:red;")
+            else:
+                self.choices[x].setStyleSheet("color:green;")
+        self.check.setText(_translate("MainWindow", "Next"))
+        try:
+            print("finalquiz")
+            self.tempquestion = self.tempquestion[1:]
+            self.temptype = self.temptype[1:]
+            self.check.clicked.disconnect()
+            self.check.clicked.connect(self.finalquiz)
+        except:
+            print("result")
             self.check.clicked.connect(self.get_results)
 
     def get_results(self):
@@ -380,11 +460,13 @@ class Ui_MainWindow(object):
         self.setup_quiz()
 
     def back(self, event):
-        _translate = QtCore.QCoreApplication.translate
-        self.setup_home()
-        MainWindow.setCentralWidget(self.centralwidget)
-        MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Home"))
-        MainWindow.resize(601, 335)
+        if MainWindow.centralWidget().objectName() == "quizwidget":
+            print("ARE YOU SURE EXIT QUIZ")
+            _translate = QtCore.QCoreApplication.translate
+            self.setup_home()
+            MainWindow.setCentralWidget(self.centralwidget)
+            MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Home"))
+            MainWindow.resize(601, 335)
 
     def printa(self):
         dialog = QPrintDialog()

@@ -17,10 +17,14 @@ class Database:
     def runall(self, query):
         temp = self.db.execute(query)
         return temp.fetchall()
+    def getlength(self):
+        temp = self.runall("select * from questions")
+        return len(temp)
     def commit(self):
         self.db.commit()
     def getquiz(self, length):
-        questions = self.db.execute("select * from questions order by ratio asc, random();")
+        questions = self.db.execute("select * from questions where fib!=1 order by ratio asc, random();")
+        fibquestions = self.db.execute("select * from questions where fib==1 order by ratio asc, random();")
         
         out = []
         outtype = []
@@ -29,22 +33,36 @@ class Database:
             outtype.append(qtype)
             # mc
             if qtype==1:
-                out.append(questions.fetchone()[:6])
+                try:
+                    out.append(questions.fetchone()[:6])
+                except:
+                    out.append(fibquestions.fetchone()[:6])
+                    
             # tf
             if qtype==2:
                 if random.randint(0,1):
-                    out.append((questions.fetchone()[:3], True))
+                    try:
+                        out.append((questions.fetchone()[:3], True))
+                    except:
+                        out.append((fibquestions.fetchone()[:3], True))
+                        
                 else:
                     randfalse = random.randint(3, 5)
-                    tempq = questions.fetchone()
-                    out.append((tempq[:2] + tempq[randfalse], False))
-                    
+                    try:
+                        tempq = questions.fetchone()
+                    except:
+                        tempq = fibquestions.fetchone()
+                    out.append((tempq[:2] + (tempq[randfalse],), False))
             # fib
             if qtype==3:
-                out.append(questions.fetchone()[:3])
+                out.append(fibquestions.fetchone()[:3])
             # dd
             if qtype==4:
-                out.append(questions.fetchone()[:6])
+                try:
+                    out.append(questions.fetchone()[:6])
+                except:
+                    out.append(fibquestions.fetchone()[:6])
+                    
         return out, outtype        
 
         
