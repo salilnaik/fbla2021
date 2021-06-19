@@ -98,7 +98,6 @@ class Ui_MainWindow(object):
         self.answers.setObjectName("answers")
         self.answers.setGeometry(QtCore.QRect(904, 5, 131, 20))
         self.answers.toggled.connect(self.answer)
-        
         self.print = QtWidgets.QPushButton(self.reportwidget)
         self.print.setGeometry(QtCore.QRect(1090, 5, 100, 30))
         font1 = QtGui.QFont()
@@ -251,56 +250,101 @@ class Ui_MainWindow(object):
             self.check.clicked.connect(self.checkdd)'''
             
     def makequiz(self):
-       print("makequiz")
-       self.quizlen = self.spin.value()
-       self.questions, self.questiontype = db.getquiz(self.quizlen)
-       self.tempquestion = self.questions.copy()
-       self.temptype = self.questiontype.copy()
-       print(self.questiontype)
-       self.finalquiz()
+        print("makequiz")
+        self.quizlen = self.spin.value()
+        self.questions, self.questiontype = db.getquiz(self.quizlen)
+        self.tempquestion = self.questions.copy()
+        self.temptype = self.questiontype.copy()
+        print(self.questiontype)
+        self.finalquiz()
+
+        
        
     def finalquiz(self):
-       MainWindow.setStyleSheet('background-color: "#fff"')
-       
+        MainWindow.setStyleSheet('background-color: "#fff"')
         
-       _translate = QtCore.QCoreApplication.translate
-       self.spin.hide()
-       print(0)
-       try:
-           # Multiple Choice
-           if self.temptype[0] == 1:
-               print(9)
-               self.check.setText(_translate("MainWindow", "Check Answer"))
-               self.check.clicked.disconnect()
-               self.check.clicked.connect(self.checkans)
-               self.mc1 = self.tempquestion[0]
+         
+        _translate = QtCore.QCoreApplication.translate
+        self.spin.hide()
+        print(0)
+        try:
+            for i in self.choices:
+                i.hide()
+            print("hid choicec")
+            self.choices = []
+        except:
+            print("pass")
 
-               print(self.mc1)
+        self.text1.hide()
+        print("hid text")
+
+        try:
+            # Multiple Choice
+            if self.temptype[0] == 1:
+                print(9)
+                self.check.setText(_translate("MainWindow", "Check Answer"))
+                self.check.clicked.disconnect()
+                self.check.clicked.connect(self.checkans)
+                self.mc1 = self.tempquestion[0]  
+
+                print(self.mc1)
 
                
-               self.choices = [0, 0, 0, 0]
-               self.index = random.randint(0,3)
+                self.choices = [0, 0, 0, 0]
+                self.index = random.randint(0,3)
 
                 
                 
-               for x, i in enumerate(self.mc1[2:6]):
-                   self.choices[self.index-x] = QtWidgets.QRadioButton(self.quizwidget)
-                   self.choices[self.index-x].setText(_translate("MainWindow", i))
-               for x, i in enumerate(self.choices):
-                   self.choices[x].setGeometry(QtCore.QRect(10, (200+40*x), 470, 50))
-                   self.choices[x].show()
+                for x, i in enumerate(self.mc1[2:6]):
+                    self.choices[self.index-x] = QtWidgets.QRadioButton(self.quizwidget)
+                    self.choices[self.index-x].setText(_translate("MainWindow", i))
+                for x, i in enumerate(self.choices):
+                    self.choices[x].setGeometry(QtCore.QRect(10, (200+40*x), 470, 50))
+                    self.choices[x].show()
 
                 
-               self.text1.setText(_translate("MainWindow", self.mc1[1]))
-           elif self.temptype[0] == 2:
-               print("type 2")
-           elif self.temptype[0] == 3:
-               print("type3")
-           elif self.temptype[0] == 4:
-               print("type4")
-       except IndexError:
-           pass
-                   
+                self.text1.setText(_translate("MainWindow", self.mc1[1]))
+                self.text1.show()
+               
+            elif self.temptype[0] == 2:
+                print("type2 start")
+                self.check.hide()
+                print("hid check")
+                
+                print(self.tempquestion[0])
+                self.tf1, self.tf1ans = self.tempquestion[0]
+                self.text2 = QtWidgets.QLabel(self.quizwidget)
+                font = QtGui.QFont()
+                font.setPointSize(10)
+                self.text2.setFont(font)
+                self.text2.setWordWrap(True)
+                self.text2.setGeometry(QtCore.QRect(5, 90, 470, 100))
+                self.text2.setText(_translate("MainWindow", f'{self.tf1[1]}\n\nDoes "{self.tf1[2]}" make this sentence true?'))
+                self.text2.show()
+                self.buttonbox = QtWidgets.QDialogButtonBox(self.quizwidget)
+                self.buttonbox.setGeometry(QtCore.QRect(-240, 240, 470, 50))
+                self.buttonbox.setStandardButtons(QtWidgets.QDialogButtonBox.No|QtWidgets.QDialogButtonBox.Yes)
+                self.buttonbox.accepted.connect(self.checktf)
+                self.buttonbox.rejected.connect(self.checktff)
+                self.buttonbox.show()
+            elif self.temptype[0] == 3:
+                self.fib1 = db.getfib()
+                self.text3 = QtWidgets.QLabel(self.quizwidget)
+                font = QtGui.QFont()
+                font.setPointSize(10)
+                self.text3.setFont(font)
+                self.text3.setWordWrap(True)
+                self.text3.setGeometry(QtCore.QRect(5, 90, 470, 100))
+                self.text3.setText(_translate("MainWindow", f'{self.fib1[1]}\n\nPlease enter your answer in the textbox below.'))
+                self.line = QtWidgets.QLineEdit(self.quizwidget)
+                self.line.setGeometry(QtCore.QRect(5, 240, 200, 25))
+            elif self.temptype[0] == 4:
+                print("type4")
+        except IndexError:
+            print("result")
+            self.check.clicked.connect(self.get_results)
+            
+                        
 
 
 
@@ -342,28 +386,46 @@ class Ui_MainWindow(object):
             self.results.append(True)
             db.increment(self.tf1[0], True)
             self.text2.setText(_translate("MainWindow", f'{self.tf1[1]}\n\nDoes "{self.tf1[2]}" make this sentence true?\nCORRECT!!'))
+            MainWindow.setStyleSheet('background-color: "#bfb";')
         else:
             self.results.append(False)
             db.increment(self.tf1[0], False)
             self.text2.setText(_translate("MainWindow", f'{self.tf1[1]}\n\nDoes "{self.tf1[2]}" make this sentence true?\nINCORRECT!!'))
+            MainWindow.setStyleSheet('background-color: "#fbb";')
         
         self.check.setText(_translate("MainWindow", "Next Question"))
-        self.check.clicked.connect(self.setup_quiz)
+        self.check.clicked.disconnect()
+        self.check.clicked.connect(self.finalquiz)
         self.check.show()
+        try:
+            self.tempquestion = self.tempquestion[1:]
+            self.temptype = self.temptype[1:]
+        except:
+            print("result")
+            self.check.clicked.connect(self.get_results)
     def checktff(self):
         _translate = QtCore.QCoreApplication.translate
         if not self.tf1ans:
             self.results.append(True)
             db.increment(self.tf1[0], True)
             self.text2.setText(_translate("MainWindow", f'{self.tf1[1]}\n\nDoes "{self.tf1[2]}" make this sentence true?\nCORRECT!!'))
+            MainWindow.setStyleSheet('background-color: "#bfb";')
         else:
             self.results.append(False)
             db.increment(self.tf1[0], False)
             self.text2.setText(_translate("MainWindow", f'{self.tf1[1]}\n\nDoes "{self.tf1[2]}" make this sentence true?\nINCORRECT!!'))
+            MainWindow.setStyleSheet('background-color: "#fbb";')
         
         self.check.setText(_translate("MainWindow", "Next Question"))
-        self.check.clicked.connect(self.setup_quiz)
+        self.check.clicked.disconnect()
+        self.check.clicked.connect(self.finalquiz)
         self.check.show()
+        try:
+            self.tempquestion = self.tempquestion[1:]
+            self.temptype = self.temptype[1:]
+        except:
+            print("result")
+            self.check.clicked.connect(self.get_results)
         
     def checkans(self):
         _translate = QtCore.QCoreApplication.translate
