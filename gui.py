@@ -1,6 +1,11 @@
-# fix quiz. it repeats the same question multiple times because it selects them each individually based on ratio so it always selects the one with the worst ratio
+# could add timer
+# could add graphs
+# NEED TO ADD HELP
+# could add way to edit questions in report page
 
-# add the code for the other question types and find a way to hide the choices from a multiple choice question
+# LOOK AT RUBRIC
+
+
 
 
 
@@ -40,11 +45,12 @@ class Ui_MainWindow(object):
     def setup_home(self):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(601, 335)
+        MainWindow.setStyleSheet('')
         
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.welcomeText = QtWidgets.QLabel(self.centralwidget)
-        self.welcomeText.setGeometry(QtCore.QRect(10, 10, 581, 141))
+        self.welcomeText.setGeometry(QtCore.QRect(10, 25, 581, 141))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.welcomeText.setFont(font)
@@ -60,6 +66,7 @@ class Ui_MainWindow(object):
         self.beginButton.setAutoDefault(True)
         self.beginButton.setObjectName("beginButton")
         self.beginButton.clicked.connect(self.quiz)
+            
         self.reportButton = QtWidgets.QPushButton(self.centralwidget)
         self.reportButton.setGeometry(QtCore.QRect(320, 200, 261, 101))
         font = QtGui.QFont()
@@ -68,6 +75,15 @@ class Ui_MainWindow(object):
         self.reportButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.reportButton.setObjectName("reportButton")
         self.reportButton.clicked.connect(self.report)
+
+        self.helpButton = QtWidgets.QPushButton(self.centralwidget)
+        self.helpButton.setGeometry(QtCore.QRect(571, 10, 25, 25))
+        self.helpButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.helpButton.setObjectName("helpButton")
+        self.helpButton.setIcon(self.centralwidget.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MessageBoxQuestion")))
+        self.helpButton.setStyleSheet("border: none;")
+        self.helpButton.clicked.connect(self.help)
+        
         MainWindow.setCentralWidget(self.centralwidget)
         
         self.retranslateUi(MainWindow)
@@ -100,6 +116,11 @@ class Ui_MainWindow(object):
         self.answers.toggled.connect(self.answer)
         self.print = QtWidgets.QPushButton(self.reportwidget)
         self.print.setGeometry(QtCore.QRect(1090, 5, 100, 30))
+        
+        name = 'SP_MessageBoxQuestion'
+
+        self.print.setIcon(self.reportwidget.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileIcon")))
+        
         font1 = QtGui.QFont()
         font1.setPointSize(11)
         self.print.setFont(font1)
@@ -140,10 +161,8 @@ class Ui_MainWindow(object):
         self.check = QtWidgets.QPushButton(self.quizwidget)
         self.check.setGeometry(375, 440, 100, 35)
         self.check.setText(_translate("MainWindow", "Start Quiz"))
-
-
         self.check.clicked.connect(self.makequiz)
-        self.mc1 = db.getmc()
+        
         self.text1 = QtWidgets.QLabel(self.quizwidget)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -249,10 +268,13 @@ class Ui_MainWindow(object):
 
             self.check.clicked.connect(self.checkdd)'''
             
-    def makequiz(self):
-        print("makequiz")
-        self.quizlen = self.spin.value()
-        self.questions, self.questiontype = db.getquiz(self.quizlen)
+    def makequiz(self, questions=False):
+        self.results = []
+        print(questions, "Question")
+        if not questions:
+            print("makequiz")
+            self.quizlen = self.spin.value()
+            self.questions, self.questiontype = db.getquiz(self.quizlen)
         self.tempquestion = self.questions.copy()
         self.temptype = self.questiontype.copy()
         print(self.questiontype)
@@ -261,7 +283,7 @@ class Ui_MainWindow(object):
         
        
     def finalquiz(self):
-        MainWindow.setStyleSheet('background-color: "#fff"')
+        MainWindow.setStyleSheet('')
         
          
         _translate = QtCore.QCoreApplication.translate
@@ -297,6 +319,11 @@ class Ui_MainWindow(object):
         except:
             print("no text4")
 
+        try:
+            self.buttoon.hide()
+        except:
+            print("no hide buttoon")
+
 
         try:
             # Multiple Choice
@@ -305,6 +332,7 @@ class Ui_MainWindow(object):
                 self.check.setText(_translate("MainWindow", "Check Answer"))
                 self.check.clicked.disconnect()
                 self.check.clicked.connect(self.checkans)
+                self.check.show()
                 self.mc1 = self.tempquestion[0]  
 
                 print(self.mc1)
@@ -327,7 +355,11 @@ class Ui_MainWindow(object):
                     self.choices[x].setGeometry(QtCore.QRect(10, (200+40*x), 470, 50))
                     self.choices[x].show()
 
-                
+                font = QtGui.QFont()
+                font.setPointSize(10)
+                self.text1.setFont(font)
+                self.text1.setWordWrap(True)
+                self.text1.setGeometry(QtCore.QRect(5, 90, 470, 100))
                 self.text1.setText(_translate("MainWindow", self.mc1[1]))
                 self.text1.show()
                
@@ -387,8 +419,10 @@ class Ui_MainWindow(object):
                 self.line.setGeometry(QtCore.QRect(5, 240, 200, 25))
                 self.line.show()
 
+                self.check.setText(_translate("MainWindow", "Check Answer"))
                 self.check.clicked.disconnect()
                 self.check.clicked.connect(self.checkfib)
+                self.check.show()
             elif self.temptype[0] == 4:
                 self.dd1 = self.tempquestion[0]
                 self.text4 = QtWidgets.QLabel(self.quizwidget)
@@ -409,8 +443,10 @@ class Ui_MainWindow(object):
                 self.drop.setGeometry(QtCore.QRect(5,240,400,35))
                 self.drop.show()
 
+                self.check.setText(_translate("MainWindow", "Check Answer"))
                 self.check.clicked.disconnect()
                 self.check.clicked.connect(self.checkdd)
+                self.check.show()
 
 
 
@@ -455,6 +491,17 @@ class Ui_MainWindow(object):
 
     def checkfib(self):
         _translate = QtCore.QCoreApplication.translate
+
+        if self.line.text() == "":
+            dialog = QtWidgets.QMessageBox()
+            dialog.setWindowTitle("Provide Answer")
+            dialog.setText("Please provide an answer for the question.")
+            dialog.setIcon(QtWidgets.QMessageBox.Warning)
+            dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            dialog.setDefaultButton(QtWidgets.QMessageBox.Ok)
+
+            dialog.exec_()
+            return
     
         if self.line.text().lower().strip() == self.fib1[2].lower().strip():
             self.results.append(True)
@@ -535,6 +582,22 @@ class Ui_MainWindow(object):
         
     def checkans(self):
         _translate = QtCore.QCoreApplication.translate
+        onechecked = False
+        for choice in self.choices:
+            if choice.isChecked():
+                onechecked = True
+                break
+        if not onechecked:
+            dialog = QtWidgets.QMessageBox()
+            dialog.setWindowTitle("Select anser")
+            dialog.setText("Please select an answer to the question.")
+            dialog.setIcon(QtWidgets.QMessageBox.Warning)
+            dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            dialog.setDefaultButton(QtWidgets.QMessageBox.Ok)
+
+            dialog.exec_()
+
+            return
         for x, choice in enumerate(self.choices):
             if choice.isChecked():
                 if self.pastchecked == choice:
@@ -573,23 +636,37 @@ class Ui_MainWindow(object):
             self.check.clicked.connect(self.get_results)
 
     def get_results(self):
+        print("GEET RESULT")
         _translate = QtCore.QCoreApplication.translate
-        count = 0
+        try:
+            self.drop.hide()
+        except:
+            print("result no hide drop")
+        self.count = 0
+        print(self.results)
         for result in self.results:
             if result:
-                count+=1
+                self.count+=1
         font = QtGui.QFont()
         font.setPointSize(40)
+        print("FONT")
         self.text1.setGeometry(QtCore.QRect(5, 90, 470, 300))
         self.text1.setFont(font)
-        self.text1.setText(_translate("MainWindow", f"Your score: {count}/{len(self.results)}"))
+        self.text1.setText(_translate("MainWindow", f"Your score: {self.count}/{len(self.results)}"))
         self.text1.show()
+        print("text show")
 
         self.buttoon = QtWidgets.QPushButton(self.quizwidget)
-        self.buttoon.setText(_translate("MainWindow", "Print"))
-        self.buttoon.setGeometry(QtCore.QRect(420,5,50,100))
-        for i in self.choices:
-            i.hide()
+        print("buttoon")
+        self.buttoon.setText(_translate("MainWindow", "Try Again"))
+        self.buttoon.setGeometry(QtCore.QRect(370,5,100,50))
+        self.buttoon.clicked.connect(lambda: self.makequiz(True))
+        self.buttoon.show()
+        try:
+            for i in self.choices:
+                i.hide()
+        except:
+            print("choice no hide")
         self.check.hide()
         
                 
@@ -632,11 +709,68 @@ class Ui_MainWindow(object):
     def back(self, event):
         if MainWindow.centralWidget().objectName() == "quizwidget":
             print("ARE YOU SURE EXIT QUIZ")
+            dialog = QtWidgets.QMessageBox()
+            dialog.setWindowTitle("Exit quiz?")
+            dialog.setText("Are you sure you want to exit the quiz?")
+            dialog.setIcon(QtWidgets.QMessageBox.Warning)
+            dialog.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No)
+            dialog.setDefaultButton(QtWidgets.QMessageBox.No)
+
+            dialog.buttonClicked.connect(self.backmessage)
+
+            dialog.exec_()
+        else:
+            
+            _translate = QtCore.QCoreApplication.translate
+            self.setup_home()
+            MainWindow.setCentralWidget(self.centralwidget)
+            MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Home"))
+            MainWindow.resize(601, 335)
+
+    def backmessage(self, choice):
+        if "Yes" in choice.text():
+            _translate = QtCore.QCoreApplication.translate
+            self.setup_home()
+            MainWindow.setCentralWidget(self.centralwidget)
+            MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Home"))
+            MainWindow.resize(601, 335)
+
+    def help(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setup_home()
-        MainWindow.setCentralWidget(self.centralwidget)
-        MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Home"))
-        MainWindow.resize(601, 335)
+        print(MainWindow.geometry())
+        self.helpWindow = QtWidgets.QWidget()
+        self.helpWindow.setGeometry(MainWindow.geometry())
+        self.helpWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Help"))
+
+        self.helpWindow.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.helpWindow.setAttribute(QtCore.Qt.WA_NoSystemBackground, True)
+        self.helpWindow.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
+
+        print("jfkd")
+        self.helptext = QtWidgets.QLabel(self.helpWindow)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.helptext.setFont(font)
+        self.helptext.setWordWrap(True)
+        self.helptext.setStyleSheet("background-color: white;")
+
+        self.helptext1 = QtWidgets.QLabel(self.helpWindow)
+        self.helptext1.setFont(font)
+        self.helptext1.setWordWrap(True)
+
+        if MainWindow.centralWidget().objectName() == "centralwidget":
+            self.helptext.setGeometry(QtCore.QRect(0, 0, 601, 335))
+            self.helptext.setText('<h3>Frequently Asked Questions</h3><p></p>')
+
+            
+
+            
+        self.helptext.show()
+        self.helptext1.show()
+        self.helpWindow.show()
+        
+    
+
 
     def printa(self):
         dialog = QPrintDialog()
@@ -715,6 +849,11 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
+    
+#    MainWindow.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+#   MainWindow.setAttribute(QtCore.Qt.WA_NoSystemBackground, True)
+#    MainWindow.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
+    
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
