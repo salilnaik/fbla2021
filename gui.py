@@ -1,12 +1,20 @@
 # could add timer
 # could add graphs
-# NEED TO ADD HELP
 # could add way to edit questions in report page
 
 # LOOK AT RUBRIC
 
 
+# LET JUDGE CONTROL
 
+# ABOUT ME
+
+
+
+
+# ADD GRAPHS
+
+# ADD DOCMENTATION
 
 
 
