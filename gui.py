@@ -115,9 +115,7 @@ class Ui_MainWindow(object):
         self.answers.setGeometry(QtCore.QRect(904, 5, 131, 20))
         self.answers.toggled.connect(self.answer)
         self.print = QtWidgets.QPushButton(self.reportwidget)
-        self.print.setGeometry(QtCore.QRect(1090, 5, 100, 30))
-        
-        name = 'SP_MessageBoxQuestion'
+        self.print.setGeometry(QtCore.QRect(1060, 5, 100, 30))
 
         self.print.setIcon(self.reportwidget.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileIcon")))
         
@@ -137,6 +135,16 @@ class Ui_MainWindow(object):
         self.addDataNoAnswers()
         self.table.setGeometry(QtCore.QRect(5, 40, 1190, 655))
         self.table.hide()
+
+        self.helpButton = QtWidgets.QPushButton(self.reportwidget)
+        self.helpButton.setGeometry(QtCore.QRect(1170, 10, 25, 25))
+        self.helpButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.helpButton.setObjectName("helpButton")
+        self.helpButton.setIcon(self.centralwidget.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MessageBoxQuestion")))
+        self.helpButton.setStyleSheet("border: none;")
+        self.helpButton.clicked.connect(self.help)
+
+        
 
 
         
@@ -182,6 +190,15 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Quiz"))
         self.quizText.setText(_translate("MainWindow", "< Quiz"))
         MainWindow.resize(480, 480)
+
+        self.helpButton = QtWidgets.QPushButton(self.quizwidget)
+        self.helpButton.setGeometry(QtCore.QRect(10, 445, 25, 25))
+        self.helpButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.helpButton.setObjectName("helpButton")
+        self.helpButton.setIcon(self.centralwidget.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MessageBoxQuestion")))
+        self.helpButton.setStyleSheet("border: none;")
+        self.helpButton.clicked.connect(self.help)
+        self.helpButton.show()
 
 
 
@@ -324,6 +341,11 @@ class Ui_MainWindow(object):
         except:
             print("no hide buttoon")
 
+        try:
+            self.drop.hide()
+        except:
+            print("no hide drop")
+
 
         try:
             # Multiple Choice
@@ -343,6 +365,7 @@ class Ui_MainWindow(object):
 
                 try:
                     self.drop.hide()
+                    print("hide drop")
                 except:
                     print("no hide drop in mc")
 
@@ -735,41 +758,110 @@ class Ui_MainWindow(object):
             MainWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Home"))
             MainWindow.resize(601, 335)
 
+    def nextHelp(self):
+        print(8)
+        place = []
+        print(88)
+        self.placesindex += 1
+        print(self.placesindex)
+        if MainWindow.centralWidget().objectName() == "centralwidget":
+            if self.placesindex <= 1:
+                places = [[self.beginButton.geometry(), "<h2>Begin Button</h2><p>This button begins the quiz. Clicking it will take you to a page to select the number of questions and then to the quiz itself.</p>"],
+                          [self.reportButton.geometry(), "<h2>Report Button</h2><p>This button takes you to the question report page. This page will display each question and answer as well as the question statistics</p>"]]
+
+                self.helptext.setGeometry(places[self.placesindex][0])
+                self.infotext.setText(places[self.placesindex][1])
+            else:
+                self.infoWindow.close()
+        elif MainWindow.centralWidget().objectName() == "reportwidget":
+            if self.placesindex <= 6:
+                places = [[self.reportText.geometry(), "<h2>Title and Back Button</h2><p>This is the title of the page you are currently on: Report. You can also click on this title or the glyph next to it to return back to the home page"],
+                          [self.answers.geometry(), "<h2>Show Answers</h2><p>This checkbox toggles the answers in the table. When checked, the answers will display. It is unchecked by default."],
+                          [self.print.geometry(), "<h2>Print</h2><p>This button will open up a print dialog so you can print out the question report. The table will be printed exactly as it is currently seen (including whether or not the answers are visible)."],
+                          [QtCore.QRect(5, 40, self.table.columnWidth(0), 655), "<h2>Index</h2><p>This column indicates the index position of the question in the table.</p>"],
+                          [QtCore.QRect(5+self.table.columnWidth(0), 40, self.table.columnWidth(1), 655), "<h2>Question</h2><p>This column displays the question</p>"],
+                          [QtCore.QRect(5+self.table.columnWidth(0)+self.table.columnWidth(1), 40, self.table.columnWidth(2), 655), "<h2>Correct</h2><p>This column displays the number of times you have gotten this question correct</p>"],
+                          [QtCore.QRect(5+self.table.columnWidth(0)+self.table.columnWidth(1)+self.table.columnWidth(2), 40, self.table.columnWidth(3), 655), "<h2>Total</h2><p>This column displays the total number of times you have viewed this question in a quiz</p>"]
+                          ]
+                self.helptext.setGeometry(places[self.placesindex][0])
+                self.infotext.setText(places[self.placesindex][1])
+            elif self.model.columnCount() != 5:
+                self.infoWindow.close()
+
+            if self.placesindex >= 5 and self.placesindex <= 7 and self.model.columnCount() == 5:
+                self.table.scrollTo(self.model.createIndex(0,4))
+                places = [[],[],[],[],[],
+                          [QtCore.QRect(1195-25-self.table.columnWidth(4)-self.table.columnWidth(3)-self.table.columnWidth(2), 40, self.table.columnWidth(2), 655), "<h2>Answer</h2><p>This column displays the answer to the question. This can be hidden with the <i>Show Answers</i> checkbox above."],
+                          [QtCore.QRect(1195-25-self.table.columnWidth(4)-self.table.columnWidth(3), 40, self.table.columnWidth(3), 655), "<h2>Correct</h2><p>This column displays the number of times you have gotten this question correct</p>"],
+                          [QtCore.QRect(1195-25-self.table.columnWidth(4), 40, self.table.columnWidth(4), 655), "<h2>Total</h2><p>This column displays the total number of times you have viewed this question in a quiz</p>"]
+                         ]
+                self.helptext.setGeometry(places[self.placesindex][0])
+                self.infotext.setText(places[self.placesindex][1])
+            elif self.model.columnCount() != 5:
+                pass
+            elif self.placesindex > 7:
+                self.infoWindow.close()
+            
     def help(self):
         _translate = QtCore.QCoreApplication.translate
         print(MainWindow.geometry())
         self.helpWindow = QtWidgets.QWidget()
         self.helpWindow.setGeometry(MainWindow.geometry())
-        self.helpWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Help"))
+        self.helpWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Overlay"))
 
-        self.helpWindow.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        self.helpWindow.setAttribute(QtCore.Qt.WA_NoSystemBackground, True)
-        self.helpWindow.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
+        self.helpWindow.setWindowOpacity(0.6)
+
+        self.infoWindow = QtWidgets.QWidget()
+        self.infoWindow.setGeometry(QtCore.QRect(1260, 347, 601, 335))
+        self.infoWindow.setWindowTitle(_translate("MainWindow", "FBLA Quiz ~ Help"))
+        self.infoWindow.closeEvent = self.helpClose
+
+        self.infotext = QtWidgets.QLabel(self.infoWindow)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.infotext.setFont(font)
+        self.infotext.setGeometry(QtCore.QRect(5, 5, 591, 325))
+        self.infotext.setText(_translate("MainWindow", " "))
+        self.infotext.setWordWrap(True)
+
+        self.nexthelpbutton = QtWidgets.QPushButton(self.infoWindow)
+        self.nexthelpbutton.setText(_translate("MainWindow", "Next"))
+        self.nexthelpbutton.setGeometry(QtCore.QRect(508, 307, 93, 28))
+        self.nexthelpbutton.clicked.connect(self.nextHelp)
 
         print("jfkd")
         self.helptext = QtWidgets.QLabel(self.helpWindow)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.helptext.setFont(font)
-        self.helptext.setWordWrap(True)
-        self.helptext.setStyleSheet("background-color: white;")
+        self.helptext.setStyleSheet("border: 5px solid red;")
 
-        self.helptext1 = QtWidgets.QLabel(self.helpWindow)
-        self.helptext1.setFont(font)
-        self.helptext1.setWordWrap(True)
+        self.placesindex = -1
+        print(9)
 
-        if MainWindow.centralWidget().objectName() == "centralwidget":
-            self.helptext.setGeometry(QtCore.QRect(0, 0, 601, 335))
-            self.helptext.setText('<h3>Frequently Asked Questions</h3><p></p>')
+
+        if MainWindow.centralWidget().objectName() == "quizwidget":
+            print(9)
+            self.nexthelpbutton.clicked.disconnect()
+            self.nexthelpbutton.hide()
+            self.helptext.setGeometry(self.quizwidget.geometry())
+            self.helptext.show()
+            self.helpWindow.show()
+            self.infoWindow.show()
+            self.infotext.setText(_translate("MainWindow", "<h2>Quiz Window</h2><p>When you first open the quiz window, select the number of questions you want then click Start Quiz."
+                                             "In the quiz, read the question and instruction text carefully and follow the instructions."
+                                             "After you are done, you can view your score and take the quiz again if you want."))
+
+            return
 
             
+        self.nextHelp()
+        print(8)
 
             
         self.helptext.show()
-        self.helptext1.show()
         self.helpWindow.show()
-        
-    
+        self.infoWindow.show()
+
+    def helpClose(self, event):
+        self.helpWindow.close()
 
 
     def printa(self):
