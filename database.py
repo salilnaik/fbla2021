@@ -1,7 +1,9 @@
-#########Documentation#######################
-# Defines Database class                    #
-# Defines methods to interact with database #
-#############################################
+
+#########Documentation##########################
+# Defines Database class                       #
+# Defines methods to interact with database    #
+# Only public method getquiz() should be used #
+################################################ 
 
 
 import sqlite3
@@ -23,6 +25,11 @@ class Database:
     def commit(self):
         self.db.commit()
     def getquiz(self, length):
+        """takes int length
+        
+        This method will query the database and return a tuple of 2 lists: the first one contains the questions, the second contains the question type.
+        Each list will be the length of the parameter passed into the method.
+        """
         questions = self.db.execute("select * from questions where fib!=1 order by ratio asc, random();")
         fibquestions = self.db.execute("select * from questions where fib==1 order by ratio asc, random();")
         
